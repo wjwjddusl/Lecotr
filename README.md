@@ -1,7 +1,8 @@
 # Lector
 A website where you can share your thoughts on books.
 책에 대한 감상을 익명의 사람들과 나눌 수 있는 게시판 사이트입니다.
-**개인 프로젝트입니다. **
+
+**개인 프로젝트입니다.**
 
 ## 개발기간
 2023.08 ~ 2023.10
