@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <div th:replace="/layout/header :: header"></div>
+    <style>
+    //링크에 대한 설정
+    .link {color:black;}
+    .link:link { color: gray;}
+    .link:visited { color: black;}
+    .link:hover { color: gray;}
+    .link:active { color: gray;}
+
+    //글쓰기 버튼
+    .btn {
+    border: none;
+    padding: 14px 28px;
+    font-size: 12px;
+    }
+
+    //검색
+    * {box-sizing: border-box;}
+
+    .search-container button {
+      padding: 6px 10px;
+      background: #ddd;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .search-container button:hover {
+      background: #ccc;
+    }
+
+    </style>
+</head>
+<body>
+<br><br>
+<div>
+<div class="container mt-3" style="text-align: left;">
+    <!-- 검색기능 -->
+    <div class="search-container">
+        <form th:action="@{/board/paging}" method="get">
+            <input type="text" placeholder="제목을 입력해주세요." name="searchKeyword">
+            <button type="submit"><i class="fa fa-search"></i></button>
+        </form>
+    </div>
+    <br>
+    <!-- 카테고리 검색-->
+    <div>
+    <form th:action="@{/board/paging}" method="get">
+        <button style="font-size:13px; padding: 5px 22px; background-color: white; border: 2px solid orange;" type="submit" value="소설" name="searchCategory">소설</button>
+        <button style="font-size:13px; padding: 5px 22px; background-color: white; border: 2px solid orange;" type="submit" value="문학" name="searchCategory">문학</button>
+        <button style="font-size:13px; padding: 5px 22px; background-color: white; border: 2px solid orange;" type="submit" value="에세이" name="searchCategory">에세이</button>
+        <button style="font-size:13px; padding: 5px 22px; background-color: white; border: 2px solid orange;" type="submit" value="그외" name="searchCategory">그외</button>
+        <button style="font-size:13px; padding: 5px 22px; background-color: white; border: 2px solid orange;" type="submit" value="자유게시판" name="searchCategory">자유게시판</button>
+    </form>
+    </div>
+    <br>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>title</th>
+            <th>writer</th>
+            <th>category</th>
+            <th>date</th>
+            <th>hits</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="board: ${boardList}">
+            <td th:text="${board.id}"></td>
+            <td>
+                <div style="display:inline; color:#FE642E; font-size:10px;" th:if="${nowTime.equals(#temporals.format(board.boardCreatedTime, 'yy-MM-dd'))}">New!</div>
+                <a class="link" style="text-decoration: none;" th:href="@{|/board/${board.id}|(page=${boardList.number + 1})}" th:text="${board.boardTitle}"></a>
+            </td>
+            <td th:text="${board.writer}"></td>
+            <td th:text="${board.category}"></td>
+            <td th:text="*{#temporals.format(board.boardCreatedTime, 'yy-MM-dd')}"></td>
+            <td th:text="${board.boardHits}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<br>
+<!--검색 결과가 없을때 -->
+<div style="text-align:center" th:if="${boardList.getTotalPages() ==0}">
+    <span style="font-size:13px;,color:gray;">검색 결과가 없습니다.</span>
+</div>
+<!-- 검색결과 있을때-->
+<div style="text-align:center" th:if="${boardList.getTotalPages() !=0}">
+        <!-- 이전 링크 활성화 비활성화 -->
+        <!-- boardList.getNumber() 사용자:2페이지 getNumber()=1 -->
+        <span th:if="${boardList.hasPrevious() == true}">
+        <a class="link" style="text-decoration: none;" th:href="${boardList.first} ? '#' : @{/board/paging(page=${boardList.number})}">prev</a>
+        </span>
+        <!-- 페이지 번호 링크(현재 페이지는 숫자만)
+                for(int page=startPage; page<=endPage; page++)-->
+        <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+
+            <!-- 현재페이지는 링크 없이 숫자만 -->
+            <span th:if="${page == boardList.number + 1}" th:text="${page}"></span>
+
+            <!-- 현재페이지 번호가 아닌 다른 페이지번호에는 링크를 보여줌 -->
+            <span th:unless="${page == boardList.number + 1}">
+                <a class="link" style="text-decoration: none;" th:href="@{/board/paging(page=${page},searchKeyword = ${param.searchKeyword} )}" th:text="${page}"></a>
+            </span>
+        </span>
+
+        <!-- 다음 링크 활성화 비활성화
+            사용자: 2페이지, getNumber: 1, 3페이지-->
+        <span th:if="${boardList.hasNext() == true}">
+        <a class="link" style="text-decoration: none;" th:href="${boardList.last} ? '#' : @{/board/paging(page=${boardList.number + 2})}">next</a>
+        </span>
+</div>
+<div th:if="${session.loginUsername != null}" style="text-align:right; padding-right:130px;">
+    <button class="btn write" style="background-color: black; color:white;" onclick="WriteReq()">글쓰기</button>
+</div>
+</div>
+
+<br><br>
+</body>
+
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+<script>
+    const WriteReq = () => {
+        location.href = "/board/save";
+    }
+</script>
+</html>

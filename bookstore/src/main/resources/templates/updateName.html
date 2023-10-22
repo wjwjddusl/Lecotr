@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>register</title>
+  <div th:replace="/layout/header :: header"></div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <style>
+    //버튼 스타일
+    .btn {
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .submit {background-color: black; color: white;}
+    .submit:hover {background-color: gray; color: white;}
+</style>
+</head>
+<body>
+<!-- 유저 수정폼 -->
+<div class="container-sm" style="width:500px; margin-top:100px; border:1px solid #DCDCDC; padding:60px;">
+  <div style="text-align:center">
+    <img src="/img/book_logo.png" width="200px" height="150px">
+  </div>
+  <br><br><br>
+  <h5>정보 수정하기</h5>
+  <br>
+  <form name="resForm" action="/user/update" onsubmit="return validateForm()" method="post">
+    <input type="hidden" name="id" th:value="${nameUpdate.id}">
+    <input type="hidden" name="email" th:value="${nameUpdate.email}">
+    <input type="hidden" name="password" th:value="${nameUpdate.password}">
+    <div class="mb-3 mt-3">
+      <label for="username" class="form-label">*New User Name:</label>
+      <input type="text" class="form-control" id="username" placeholder="Enter username" name="username">
+      <span style="cursor:pointer; font-size:15px;" onclick="userNameCheck()">중복확인</span><br>
+      <span style="font-size:13px;" id="nameCheck"></span>
+    </div>
+    <br>
+    <button class="btn submit" id="sub">수정</button>
+  </form>
+</div>
+</body>
+<br><br><br><br>
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+
+<script type="text/javascript">
+//빈칸이 오지 않도록 함
+
+    var check =0; //중복버튼을 눌렀는지 확인을 위함(기본 = 안누름)
+
+    function validateForm() {
+      var username = document.forms["resForm"]["username"].value;
+      var email = document.forms["resForm"]["email"].value;
+      var password = document.forms["resForm"]["password"].value;
+
+      if (username == "" || email == "" || password == "") {
+        alert("빈칸없이 입력해주세요.");
+        return false;
+      }else if(check == 0){
+        alert("중복확인 버튼을 눌러주세요.");
+        return false;
+      }
+    }
+
+    //유저네임 중복 체크
+    const userNameCheck = () => {
+        check=1;
+        const username = document.getElementById("username").value;
+        const checkResult = document.getElementById("nameCheck");
+
+        $.ajax({
+            //요청방식: post, url: "username-check", 데이터: username
+            type: "post",
+            url: "/user/username-check",
+            data: {
+                "username": username
+            },
+            success: function(res){
+                console.log("요청성공", res);
+                if(res == "ok"){
+                    checkResult.style.color = "green";
+                    checkResult.innerHTML = "사용가능한 닉네임입니다.";
+                }else{
+                    checkResult.style.color = "red";
+                    checkResult.innerHTML = "이미 사용중인 닉네임입니다.";
+                    document.getElementById("username").value=""; //초기화
+                    document.getElementById("username").focus();
+                    check=0;
+                }
+            },
+            error: function(err){
+                console.log("에러발생:",err);
+            }
+        });
+    }
+
+</script>
+</html>

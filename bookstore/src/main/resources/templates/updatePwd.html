@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>register</title>
+  <div th:replace="/layout/header :: header"></div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <style>
+    //버튼 스타일
+    .btn {
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .submit {background-color: black; color: white;}
+    .submit:hover {background-color: gray; color: white;}
+</style>
+</head>
+<body>
+<!-- 유저 수정폼 -->
+<div class="container-sm" style="width:500px; margin-top:100px; border:1px solid #DCDCDC; padding:60px;">
+  <div style="text-align:center">
+    <img src="/img/book_logo.png" width="200px" height="150px">
+  </div>
+  <br><br><br>
+  <h5>정보 수정하기</h5>
+  <br>
+  <form name="resForm" action="/user/pwdUpdate" onsubmit="return validateForm()" method="post">
+    <input type="hidden" name="id" th:value="${pwdUpdate.id}">
+    <input type="hidden" name="username" th:value="${pwdUpdate.username}">
+    <input type="hidden" name="email" th:value="${pwdUpdate.email}">
+   <div class="mb-3">
+      <label for="pwd1" class="form-label">*New Password:</label>
+      <input class="form-control" id="pwd1" placeholder="Enter Password" type="password" name="password">
+      <h6><input type="checkbox" onclick="showPwd()">Show Password</h6></div>
+    <div class="mb-3">
+      <label for="pwd2" class="form-label">Confirm Password:</label>
+      <input class="form-control" id="pwd2" placeholder="Confirm Password" type="password" name="password2">
+      <span id="alert-danger" style="color:red;">*비밀번호가 일치하지 않습니다.</span>
+    </div>
+    <br>
+    <button class="btn submit" id="sub">수정</button>
+  </form>
+</div>
+</body>
+<br><br><br><br>
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+
+<script type="text/javascript">
+//제이쿼리를 이용해 비밀번호 일치 확인
+    $(function(){
+        $("#alert-danger").hide();
+        $("input").keyup(function(){
+            var pwd1=$("#pwd1").val();
+            var pwd2=$("#pwd2").val();
+            if(pwd1 != "" || pwd2 != ""){
+                if(pwd1 != pwd2){
+                    $("#alert-danger").show();
+                }else{
+                    $("#alert-danger").hide();
+                }
+            }
+        });
+    });
+
+//show Password
+    function showPwd() {
+      var x = document.getElementById("pwd1");
+      if (x.type === "password") {
+        x.type = "text";
+      } else {
+        x.type = "password";
+      }
+    }
+
+//빈칸이 오지 않도록 함
+
+    function validateForm() {
+      var username = document.forms["resForm"]["username"].value;
+      var email = document.forms["resForm"]["email"].value;
+      var password = document.forms["resForm"]["password"].value;
+
+      if (username == "" || email == "" || password == "") {
+        alert("빈칸없이 입력해주세요.");
+        return false;
+      }
+    }
+
+</script>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>

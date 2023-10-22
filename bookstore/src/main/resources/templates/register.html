@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>register</title>
+    <div th:replace="/layout/header :: header"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+    //버튼 스타일
+    .btn {
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .submit {background-color: black; color: white;}
+    .submit:hover {background-color: gray; color: white;}
+</style>
+</head>
+<body>
+<!-- 회원가입 폼 -->
+<div class="container-sm" style="width:500px; margin-top:100px; border:1px solid #DCDCDC; padding:60px;">
+    <div style="text-align:center">
+        <img src="/img/book_logo.png" width="200px" height="150px">
+    </div>
+    <br><br><br>
+    <h2>SignUp</h2>
+    <br>
+    <form name="resForm" action="/user/save" onsubmit="return validateForm()" method="post">
+        <div class="mb-3 mt-3">
+            <label for="username" class="form-label">*User Name:</label>
+            <span style="font-size:12px; color:red;">수정이 불가능한 항목입니다. 신중히 결정해주세요.</span>
+            <input type="text" class="form-control" id="username" placeholder="Enter username" name="username">
+            <span style="cursor:pointer; font-size:15px;" onclick="userNameCheck()">중복확인</span><br>
+            <span style="font-size:13px;" id="nameCheck"></span>
+        </div>
+        <div class="mb-3">
+            <label for="join-email" class="form-label">*Email:</label>
+            <div>
+            <input type="email" class="form-control" id="join-email" placeholder="Enter email" name="email">
+            <span style="cursor:pointer; font-size:15px;" onclick="emailCheck()">중복확인</span>
+            </div>
+            <p style="font-size:13px;" class="email-content"></p>
+            <span style="font-size:13px;" id="emailCheck"></span>
+        </div>
+        <div class="mb-3">
+            <label for="pwd1" class="form-label">*Password:</label>
+            <input class="form-control" id="pwd1" placeholder="Enter Password" type="password" name="password">
+            <h6><input type="checkbox" onclick="showPwd()">Show Password</h6></div>
+        <div class="mb-3">
+            <label for="pwd2" class="form-label">Confirm Password:</label>
+            <input class="form-control" id="pwd2" placeholder="Confirm Password" type="password" name="password2">
+            <span id="alert-danger" style="color:red;">*비밀번호가 일치하지 않습니다.</span>
+        </div>
+        <br>
+        <button class="btn submit" id="sub">Submit</button>
+    </form>
+</div>
+</body>
+<br><br><br><br>
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+
+<script type="text/javascript">
+//이메일 형식 확인
+    const input = document.querySelector('#join-email');
+    const p = document.querySelector('.email-content');
+
+        const isEmail = (value) => {
+          return (value.indexOf('@') > 1)
+            && (value.split('@')[1].indexOf('.') > 1)
+        }
+
+        let value;
+
+        input.addEventListener('keyup', (event) => {
+          value = event.currentTarget.value;
+
+          if (isEmail(value)) {
+            p.style.color = 'green';
+            p.textContent = `*이메일 형식입니다`;
+          } else {
+            p.style.color = 'red';
+            p.textContent = `*이메일 형식이 아닙니다`;
+          }
+
+     });
+
+//제이쿼리를 이용해 비밀번호 일치 확인
+    $(function(){
+        $("#alert-danger").hide();
+        $("input").keyup(function(){
+            var pwd1=$("#pwd1").val();
+            var pwd2=$("#pwd2").val();
+            if(pwd1 != "" || pwd2 != ""){
+                if(pwd1 != pwd2){
+                    $("#alert-danger").show();
+                }else{
+                    $("#alert-danger").hide();
+                }
+            }
+        });
+    });
+
+//show Password
+    function showPwd() {
+      var x = document.getElementById("pwd1");
+      if (x.type === "password") {
+        x.type = "text";
+      } else {
+        x.type = "password";
+      }
+    }
+
+//빈칸이 오지 않도록 함
+
+    var check =0; //중복버튼을 눌렀는지 확인을 위함(기본 = 안누름)
+
+    function validateForm() {
+      var username = document.forms["resForm"]["username"].value;
+      var email = document.forms["resForm"]["email"].value;
+      var password = document.forms["resForm"]["password"].value;
+
+      if (username == "" || email == "" || password == "") {
+        alert("빈칸없이 입력해주세요.");
+        return false;
+      }else if(check == 0){
+        alert("중복확인 버튼을 눌러주세요.");
+        return false;
+      }
+    }
+
+//이메일 중복 체크
+    const emailCheck = () => {
+        check=1; //중복확인 버튼을 누름
+        const email = document.getElementById("join-email").value;
+        const checkResult = document.getElementById("emailCheck"); //태그 요소만 접근
+
+        $.ajax({
+            //요청방식: post, url: "email-check", 데이터: 이메일
+            type: "post",
+            url: "/user/email-check",
+            data: {
+                "join-email": email //전송되는 파라매터 이름 : 값(email 이라는 변수에 넣은값)
+            },
+            success: function(res){
+                console.log("요청성공", res);
+                if(res == "ok"){
+                    checkResult.style.color = "green";
+                    checkResult.innerHTML = "사용가능한 이메일 입니다.";
+                }else{
+                    checkResult.style.color = "red";
+                    checkResult.innerHTML = "이미 사용중인 이메일 입니다.";
+                    document.getElementById("join-email").value=""; //초기화
+                    document.getElementById("join-email").focus();
+                    check=0; //중복되었기 때문에 다시 입력해야됨
+                }
+            },
+            error: function(err){
+                console.log("에러발생:",err);
+            }
+        });
+    }
+
+    //유저네임 중복 체크
+    const userNameCheck = () => {
+        check=1;
+        const username = document.getElementById("username").value;
+        const checkResult = document.getElementById("nameCheck");
+
+        $.ajax({
+            //요청방식: post, url: "username-check", 데이터: username
+            type: "post",
+            url: "/user/username-check",
+            data: {
+                "username": username
+            },
+            success: function(res){
+                console.log("요청성공", res);
+                if(res == "ok"){
+                    checkResult.style.color = "green";
+                    checkResult.innerHTML = "사용가능한 닉네임입니다.";
+                }else{
+                    checkResult.style.color = "red";
+                    checkResult.innerHTML = "이미 사용중인 닉네임입니다.";
+                    document.getElementById("username").value=""; //초기화
+                    document.getElementById("username").focus();
+                    check=0;
+                }
+            },
+            error: function(err){
+                console.log("에러발생:",err);
+            }
+        });
+    }
+
+</script>
+</html>
+
+

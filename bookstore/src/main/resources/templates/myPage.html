@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>myPage</title>
+    <div th:replace="/layout/header :: header"></div>
+    <style>
+        //링크에 대한 설정
+        .link {color:black;}
+        .link:link { color: gray;}
+        .link:visited { color: black;}
+        .link:hover { color: gray;}
+        .link:active { color: gray;}
+    </style>
+</head>
+<body>
+<br>
+<div class="container mt-3">
+<h5>내 정보</h5>
+<div class="mb-3">
+    username: <input class="form-control" style="width:800px;" type="text" th:value="${userInfo.username}" readonly>
+    <span style="font-size:12px; color:gray;">*수정이 불가능한 항목입니다.</span><br><br>
+<div>
+<div class="mb-3">
+    email: <input class="form-control" style="width:800px;" type="text" th:value="${userInfo.email}" readonly>
+    <button class="btn list" style="background-color: gray; color:white;" onclick="location.href='/user/email-update'">수정</button>
+<div>
+<div class="mb-3">
+    password: <input class="form-control" style="width:800px;" type="password" th:value="${userInfo.password}" readonly>
+    <button class="btn list" style="background-color: gray; color:white;" onclick="location.href='/user/password-update'">수정</button>
+<div>
+<br>
+</div>
+<br><br>
+<hr>
+<br>
+<!--좋아요한 글이 없다면 -->
+<div th:if="${likeTotal == 0}" style="text-align:center;">
+    <span style="font-size:13px;">좋아요를 누른 글이 없습니다.</span><br><br>
+    <button class="btn list" style="background-color: gray; color:white;" onclick="location.href='/board/paging'">글 목록</button>
+</div>
+<!--좋아요한 글이 있다면 -->
+<div th:if="${likeTotal > 0}">
+    <div class="container mt-3">
+        <table class="table table-hover">
+            <h5>관심 목록</h5><br>
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>title</th>
+                <th>writer</th>
+                <th>category</th>
+                <th>date</th>
+                <th>hits</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="like:${likeBoard}">
+                <td th:text="${like.id}"></td>
+                <td>
+                    <a class="link" style="text-decoration: none;" th:href="@{|/board/${like.id}|}" th:text="${like.boardTitle}"></a>
+                </td>
+                <td th:text="${like.writer}"></td>
+                <td th:text="${like.category}"></td>
+                <td th:text="*{#temporals.format(like.boardCreatedTime, 'yy-MM-dd')}"></td>
+                <td th:text="${like.boardHits}"></td>
+            </tr>
+            </tbody>
+        </table>
+   <div>
+</div>
+
+<br>
+<hr>
+<br>
+<!--작성한 글이 없다면 -->
+<div th:if="${total == 0}" style="text-align:center;">
+    <span style="font-size:13px;">아직 작성된 글이 없습니다.</span><br><br>
+    <button class="btn write" style="background-color: gray; color:white;" onclick="WriteReq()">글 작성하기</button>
+</div>
+<!-- 작성한 글이 있다면 -->
+<div th:if="${total > 0}">
+<div class="container mt-3">
+<table class="table table-hover">
+    <h5><span th:text="|${userInfo.username} 님이 작성하신 글|"></span></h5>
+    <br>
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>title</th>
+        <th>writer</th>
+        <th>category</th>
+        <th>date</th>
+        <th>hits</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="my:${myBoard}">
+        <td th:text="${my.id}"></td>
+        <td>
+            <a class="link" style="text-decoration: none;" th:href="@{|/board/${my.id}|(page=${myBoard.number + 1})}" th:text="${my.boardTitle}"></a>
+        </td>
+        <td th:text="${my.writer}"></td>
+        <td th:text="${my.category}"></td>
+        <td th:text="*{#temporals.format(my.boardCreatedTime, 'yy-MM-dd')}"></td>
+        <td th:text="${my.boardHits}"></td>
+    </tr>
+    </tbody>
+</table>
+    <div style="text-align:center">
+    <!-- 이전 링크 활성화 비활성화 -->
+    <!-- boardList.getNumber() 사용자:2페이지 getNumber()=1 -->
+    <span th:if="${myBoard.hasPrevious() == true}">
+        <a class="link" style="text-decoration: none;" th:href="${myBoard.first} ? '#' : @{/board/paging(page=${myBoard.number})}">prev</a>
+        </span>
+    <!-- 페이지 번호 링크(현재 페이지는 숫자만)
+            for(int page=startPage; page<=endPage; page++)-->
+    <span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+
+            <!-- 현재페이지는 링크 없이 숫자만 -->
+            <span th:if="${page == myBoard.number + 1}" th:text="${page}"></span>
+
+        <!-- 현재페이지 번호가 아닌 다른 페이지번호에는 링크를 보여줌 -->
+            <span th:unless="${page == myBoard.number + 1}">
+                <a class="link" style="text-decoration: none;" th:href="@{/board/paging(page=${page},searchKeyword = ${param.searchKeyword} )}" th:text="${page}"></a>
+            </span>
+        </span>
+
+    <!-- 다음 링크 활성화 비활성화
+        사용자: 2페이지, getNumber: 1, 3페이지-->
+    <span th:if="${myBoard.hasNext() == true}">
+        <a class="link" style="text-decoration: none;" th:href="${myBoard.last} ? '#' : @{/board/paging(page=${myBoard.number + 2})}">next</a>
+        </span>
+    </div>
+</div>
+</div>
+
+</body>
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+<script>
+    const WriteReq = () => {
+        location.href = "/board/save";
+    }
+</script>
+</html>

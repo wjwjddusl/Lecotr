@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>detail</title>
+  <!-- jquery cdn -->
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <div th:replace="/layout/header :: header"></div></head>
+
+  <style>
+    //버튼 스타일
+    .btn {
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .button {background-color: gray; color: white;}
+    .button:hover {background-color: white; color: black;}
+
+    .button_delete {background-color: black; color: white;}
+    .button_delete:hover {background-color: black; color: white;}
+
+    </style>
+<body>
+<br><br>
+<div class="container border">
+  <br>
+  <div style="font-size=10px;" th:text="${board.category}"></div>
+  <br>
+  <div>
+    <h1><div style="font-size:25px;" th:text="${board.boardTitle}"></div></h1>
+  </div>
+  <span style="float:right; font-size:12px;" th:text="*{#temporals.format(board.boardCreatedTime, 'yyyy-MM-dd')}"></span>
+  <hr>
+  <br><br>
+  <div th:if="${board.fileAttached == 1}" style="text-align:center;"> <!--이미지가 존재하면 보여주기 -->
+    <img style="width:30%; height:50%;" th:src="@{|/upload/${board.storedFileName}|}" alt="이미지를 불러올수 없음.">
+    <br><br><br><br>
+  </div>
+  <div>
+    <h4><div style="font-size:15px;" th:utext="${board.boardContents}"></div></h4>
+  </div>
+  <br><br>
+  <div style="font-size:14px;">
+    작성자: <span th:text="${board.writer}"></span><br>
+    조회수: <span th:text="${board.boardHits}"></span>
+  </div>
+  <br>
+  <div th:if="${session.existsByLike == false and session.loginUsername != null}">
+    <button style="border: none; font-size:14px;" type="submit" name="likes" onclick="likeReq()">Like &#x1F642;</button>
+  </div>
+  <div th:if="${session.existsByLike == true}">
+    <button style="border: none; font-size:14px;" type="submit" name="likes" onclick="likeReq()">Like Cancel &#x1F641;</button>
+  </div>
+  <hr>
+  <div style="text-align:right">
+    <button class="btn button" onclick="listReq()">목록</button>
+    <!-- 글을 작성한 유저만 수정 삭제 가능-->
+    <span th:if="${#strings.equals(session.loginUsername,board.writer)} or ${#strings.equals(session.RoleType,'ADMIN')} ">
+    <button class="btn button" onclick="updateReq()">수정</button>
+    <button class="btn button_delete" onclick="deleteReq()">삭제</button>
+    </span>
+  </div>
+  <br>
+
+
+<!-- 댓글 출력 부분 -->
+  <div class="card" id="comment-list">
+   <div class="card-header bi bi-chat-dots">댓글 <span th:text="${#lists.size(commentList)}"></span></div>
+    <div th:each="comment: ${commentList}">
+      <div>
+        <span style="font-size:20px; color:#FF8C00; padding-left:10px;" th:text="${comment.commentWriter}"></span>
+
+        <!-- 댓글을 작성한 유저에게만 댓글 수정,삭제 허용 -->
+        <span th:if="${#strings.equals(session.loginUsername,comment.commentWriter)} or ${#strings.equals(session.RoleType,'ADMIN')}">
+        <button class="btn default" style=" border: none; font-size: 12px; display: inline-block; color:gray;"
+                th:onclick="deleteById([[${comment.id}]])">삭제</button>
+        </span>
+
+        <span style="font-size:12px; color:gray; " th:text="${comment.commentCreatedTime}"></span>
+      </div>
+      <div>
+        <div style="font-size:15px; padding-left:10px;" th:text="${comment.commentContents}"></div>
+      </div>
+      <hr>
+    </div>
+  </div>
+
+  <span th:if="${session.loginUsername == null}"> <!-- 로그인 유저가 아닌경우-->
+    <br><br>
+  <p style="text-align:center; color:gray; font-size:14px;">회원만 댓글 작성이 가능합니다.</p>
+    <br>
+  </span>
+  <span th:if="${session.loginUsername != null}"> <!--로그인한 유저에게만 댓들 작성 허용 -->
+  <!-- 댓글 작성 부분 -->
+  <div id="comment-write" class="container mt-3" >
+    <div class="mb-3" >
+      <textarea style="width:100%; resize: none;" rows="3" class="form-control" id="commentContents" placeholder="댓글 입력하기"></textarea>
+    <button id="comment-write-btn" class="btn btn-secondary" onclick="commentWrite()">작성</button>
+    </div>
+  </div>
+  </span>
+
+</div>
+</body>
+<script th:inline="javascript">
+    const commentWrite = () => {
+        const contents = document.getElementById("commentContents").value;
+
+        console.log("내용: ", contents);
+        const id = [[${board.id}]];
+
+        $.ajax({
+           // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
+           type: "post",
+           url: "/comment/save",
+           data: {
+               "commentContents": contents,
+               "boardId": id
+           },
+           success: function (res) {
+              window.location.reload(true);
+               console.log("요청성공", res);
+            //$('#text').val(''); 폼 초기화
+           },
+           error: function (err) {
+               console.log("요청실패", err);
+           }
+        });
+
+    }
+
+    //댓글 삭제
+    const deleteById = (id) => {
+      console.log(id);
+      const reqUrl = "/comment/delete/"+id
+      $.ajax({
+            type : "delete",
+             url: reqUrl,
+
+            success : function(){
+               alert('댓글을 삭제하시겠습니까?');
+               location.reload();
+            }, error(){
+                alert('ajax 실패')
+            }
+        })
+    }
+
+    const likeReq = () => {
+    console.log("관심 설정");
+      const id = [[${board.id}]];
+        location.href = "/api/likes/" + id;
+    }
+
+    const listReq = () => {
+        console.log("목록 요청");
+        const page = [[${page}]];
+        location.href = "/board/paging?page="+page;
+    }
+    const updateReq = () => {
+        console.log("수정 요청");
+        const id = [[${board.id}]];
+        location.href = "/board/update/" + id;
+    }
+    const deleteReq = () => {
+      if(confirm("정말 삭제하시겠습니까??") == true){
+        console.log("삭제 요청");
+        const id = [[${board.id}]];
+        location.href = "/board/delete/" + id;
+      }else{
+        return false;
+      }
+    }
+
+</script>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>index</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <style>
+     //사이드 메뉴 스타일
+     body {
+      font-family: "Lato", sans-serif;
+    }
+
+    .sidenav {
+      width: 140px;
+      position: fixed;
+      z-index: 1;
+      top: 30px;
+      right: 60px;
+      background: black;
+      overflow-x: hidden;
+      padding: 15px 0;
+    }
+
+    .sidenav a {
+      padding: 10px 8px 6px 16px;
+      text-decoration: none;
+      font-size: 25px;
+      color: white;
+      display: block;
+    }
+
+    .sidenav a:hover {
+      color: orange;
+    }
+
+    @media screen and (max-height: 450px) {
+      .sidenav {padding-top: 15px;}
+      .sidenav a {font-size: 18px;}
+    }
+    //링크에 대한 설정
+    .link {color:black;}
+    .link:link { color: gray;}
+    .link:visited { color: black;}
+    .link:hover { color: gray;}
+    .link:active { color: gray;}
+
+    .btn {
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+    }
+    </style>
+</head>
+<body>
+<!-- 사이드 메뉴-->
+<div class="sidenav">
+    <span th:if="${session.loginEmail == null}"> <!-- 로그인 안한 사용자에게만 보여짐.-->
+    <a href="/user/save" style="color:orange;">SignUp</a>
+    <a href="/user/login" style="color:orange;">Login</a>
+    </span>
+    <a href="/board/paging">Book</a>
+    <span th:if="${session.loginUsername != null}"> <!-- 로그인 한 사용자에게만 보여짐.-->
+        <a href="/board/save">Write</a>
+        <a href="/user/myPage">MyPage</a>
+        <a href="" onclick="logoutReq()" style="color:orange;">Logout</a>
+    </span>
+    <!--  <a href="#contact">Contact</a> -->
+</div>
+<!-- 메인 이미지 -->
+<div style="text-align:center"><img src="/img/test.gif" width="100%" height="auto"></div>
+<br>
+<div class="container mt-3">
+    <!-- 로그인한 사용자 알리기-->
+    <div th:if="${#strings.equals(session.RoleType,'USER')}"> <!-- user 일때-->
+        <span th:text="${session.loginUsername}"></span>님<img src="/img/welcome.png" width="110" height="65">
+    </div>
+    <div th:if="${#strings.equals(session.RoleType,'ADMIN')}"> <!-- 관리자 일때-->
+        관리자 계정으로 로그인하셨습니다.
+    </div>
+    <br>
+    <h2>Best</h2>
+    <br>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>title</th>
+            <th>writer</th>
+            <th>category</th>
+            <th>date</th>
+            <th>hits</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="board: ${boardList}">
+            <td th:text="${board.id}"></td>
+            <td><a class="link" style="text-decoration: none;"  th:href="@{|/board/${board.id}|(page=${boardList.number + 1})}" th:text="${board.boardTitle}"></a></td>
+            <td th:text="${board.writer}"></td>
+            <td th:text="${board.category}"></td>
+            <td th:text="*{#temporals.format(board.boardCreatedTime, 'yy-MM-dd')}"></td>
+            <td th:text="${board.boardHits}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    <span th:if="${#strings.equals(session.RoleType,'ADMIN')}"> <!-- 관리자인 경우 회원목록을 관리할수 있게 함-->
+    <button onclick="ManageReq()" style="background-color:white; color: #FF8000; border:none;">회원관리</button>
+    </span>
+</div>
+</body>
+<br><br><br><br>
+<div style="text-align:center">
+    <img src="/img/footer_logo.gif" width="160px" height="150px"> <!-- 인덱스만 이미지 경로가 다름-->
+</div>
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+<script>
+const ManageReq = () => {
+        location.href = "/user/manage";
+    }
+
+const logoutReq = () => {
+    if(confirm("로그아웃 하시겠습니까?") == true){
+        location.href = "/user/logout"
+      }else{
+        return false;
+      }
+}
+</script>
+</html>

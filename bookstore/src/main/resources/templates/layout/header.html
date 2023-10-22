@@ -1,0 +1,84 @@
+<header xmlns:th="http://www.thymeleaf.org">
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+  <style>
+  body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .topnav {
+    overflow: hidden;
+    background-color: #FBF2EF;
+  }
+
+  .topnav a {
+    float: right;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    border-radius: 3px;
+  }
+
+  .topnav a:hover {
+    color: #FE642E;
+  }
+
+  .topnav a.active {
+    background-color: #FE642E;
+    color: #FBF2EF;
+  }
+
+  .topnav .icon {
+    display: none;
+  }
+
+  @media screen and (max-width: 600px) {
+    .topnav a:not(:first-child) {display: none;}
+    .topnav a.icon {
+      float: right;
+      display: block;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .topnav.responsive {position: relative;}
+    .topnav.responsive .icon {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
+  </style>
+  <script>
+  function myFunction() {
+    var x = document.getElementById("myTopnav");
+    if (x.className === "topnav") {
+      x.className += " responsive";
+    } else {
+      x.className = "topnav";
+    }
+  }
+  </script>
+  <!-- 네비게이션 바 -->
+  <div class="topnav" id="myTopnav">
+    <span th:if="${session.loginEmail == null}">
+    <a href="/user/login">Login</a>
+    <a href="/user/save">SignUp</a>
+    </span>
+    <span th:if="${session.loginEmail != null}">
+      <a href="/user/myPage">MyPage</a>
+      <a href="/user/logout">Logout</a>
+    </span>
+    <a href="/board/paging">Book</a>
+    <a href="/" class="active">Home</a>
+    <div><img src="/img/nav_logo2.jpg" width="140px" height="50px"></div>
+  </div>
+</header>

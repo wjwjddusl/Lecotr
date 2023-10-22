@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>save</title>
+  <div th:replace="/layout/header :: header"></div>
+
+  <!-- jquery cdn -->
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+  <!-- summernote css/js-->
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+  <script src=" https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-ko-KR.min.js"></script></head>
+
+</head>
+<body>
+<div class="container mt-3">
+<form action="/board/update" method="post" name="updateForm">
+  <input type="hidden" name="id" th:value="${boardUpdate.id}">
+  <input type="hidden" name="boardHits" th:value="${boardUpdate.boardHits}">
+  <div class="mb-3">
+    <label id="title">Title:</label>
+    <input type="text" class="form-control" name="boardTitle" th:value="${boardUpdate.boardTitle}"> <br>
+  </div>
+  <div class="mb-3" >
+    <label id="category">Category:</label>
+    <select name="category" style="padding: 7px 15px;">
+      <option value="" selected disabled>카테고리를 선택해주세요.</option>
+      <option value="소설">소설</option>
+      <option value="문학">문학</option>
+      <option value="에세이">에세이</option>
+      <option value="그외">그외</option>
+      <option value="자유게시판">자유게시판</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label id="content">Content:</label>
+    <textarea id="summernote" class="form-control" name="boardContents" th:text="${boardUpdate.boardContents}"></textarea> <br>
+  </div>
+  <div class="mb-3">
+  <button class="btn btn-primary" type="submit">수정</button>
+  </div>
+</form>
+</div>
+</body>
+<!-- footer-->
+<th:block th:replace="/layout/footer :: footer">
+</th:block>
+<script>
+  $(document).ready(function () {
+        $('#summernote').summernote({
+            height: 400,
+            maxHeight: 400
+        });
+    });
+
+    //제목이 빈칸이 안되도록함.
+    function validateForm() {
+      var x = document.forms["saveForm"]["boardTitle"].value;
+      var y = document.forms["saveForm"]["category"].value;
+      if (x == "" ) {
+        alert("제목을 입력해주세요.");
+        return false;
+      }else if(y == ""){
+        alert("카테고리를 선택해주세요.");
+        return false;
+      }
+    }
+</script>
+</html>
