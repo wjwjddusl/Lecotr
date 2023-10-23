@@ -106,5 +106,11 @@ A website where you can share your thoughts on books.
   
 
 
+## MainPage
+
+![Lector_MainPage](https://github.com/wjwjddusl/Lector/assets/77613534/c931ac1f-b402-45cb-9938-da3d107d4c40)
+
+
+
 
   
