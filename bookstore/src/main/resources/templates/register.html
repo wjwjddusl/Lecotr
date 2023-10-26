@@ -115,7 +115,8 @@
 
 //빈칸이 오지 않도록 함
 
-    var check =0; //중복버튼을 눌렀는지 확인을 위함(기본 = 안누름)
+    var check1 =0; //중복버튼을 눌렀는지 확인을 위함(기본 = 안누름)
+    var check2 =0;
 
     function validateForm() {
       var username = document.forms["resForm"]["username"].value;
@@ -125,7 +126,7 @@
       if (username == "" || email == "" || password == "") {
         alert("빈칸없이 입력해주세요.");
         return false;
-      }else if(check == 0){
+      }else if(check1 == 0 || check2 ==0){
         alert("중복확인 버튼을 눌러주세요.");
         return false;
       }
@@ -133,7 +134,7 @@
 
 //이메일 중복 체크
     const emailCheck = () => {
-        check=1; //중복확인 버튼을 누름
+        check1=1; //중복확인 버튼을 누름
         const email = document.getElementById("join-email").value;
         const checkResult = document.getElementById("emailCheck"); //태그 요소만 접근
 
@@ -154,7 +155,7 @@
                     checkResult.innerHTML = "이미 사용중인 이메일 입니다.";
                     document.getElementById("join-email").value=""; //초기화
                     document.getElementById("join-email").focus();
-                    check=0; //중복되었기 때문에 다시 입력해야됨
+                    check1=0; //중복되었기 때문에 다시 입력해야됨
                 }
             },
             error: function(err){
@@ -165,7 +166,7 @@
 
     //유저네임 중복 체크
     const userNameCheck = () => {
-        check=1;
+        check2=1;
         const username = document.getElementById("username").value;
         const checkResult = document.getElementById("nameCheck");
 
@@ -186,7 +187,7 @@
                     checkResult.innerHTML = "이미 사용중인 닉네임입니다.";
                     document.getElementById("username").value=""; //초기화
                     document.getElementById("username").focus();
-                    check=0;
+                    check2=0;
                 }
             },
             error: function(err){
